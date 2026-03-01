@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase-server';
+import { purchasePhoneNumber } from '@/lib/twilio';
 
 // GET /api/businesses — List user's businesses
 export async function GET() {
@@ -38,12 +39,33 @@ export async function POST(request: NextRequest) {
     user_id: user.id,
     business_name: body.business_name,
     phone_number: body.phone_number,
-    average_job_value: body.average_job_value || 0,
-    close_rate: body.close_rate || 0.3,
+    auto_reply_template: body.auto_reply_template || 'Sorry we missed your call. How can we help you today?',
+    average_job_value: 0,
+    close_rate: 0.3,
   }).select().single();
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // Auto-provision Twilio number if user has active subscription
+  const { data: subscription } = await supabase
+    .from('subscriptions')
+    .select('status')
+    .eq('user_id', user.id)
+    .single();
+
+  if (subscription?.status === 'active' && data) {
+    try {
+      const twilioNumber = await purchasePhoneNumber();
+      await supabase
+        .from('businesses')
+        .update({ twilio_number: twilioNumber })
+        .eq('id', data.id);
+      data.twilio_number = twilioNumber;
+    } catch (err) {
+      console.error('Failed to provision Twilio number:', err);
+    }
   }
 
   return NextResponse.json(data);
