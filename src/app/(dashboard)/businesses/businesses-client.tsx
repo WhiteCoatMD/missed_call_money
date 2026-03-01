@@ -73,6 +73,19 @@ export default function BusinessesClient({ businesses: initialBusinesses }: Prop
     router.refresh();
   }
 
+  async function handleDelete(id: string, name: string) {
+    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+    const res = await fetch('/api/businesses', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+    if (res.ok) {
+      setBusinesses(businesses.filter(b => b.id !== id));
+      router.refresh();
+    }
+  }
+
   return (
     <div>
       <button
@@ -128,12 +141,20 @@ export default function BusinessesClient({ businesses: initialBusinesses }: Prop
           <div key={b.id} className="bg-white rounded-lg border p-6">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-lg font-semibold text-gray-900">{b.business_name}</h3>
-              <button
-                onClick={() => startEdit(b)}
-                className="text-sm text-blue-600 hover:underline"
-              >
-                Edit
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => startEdit(b)}
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(b.id, b.business_name)}
+                  className="text-sm text-red-600 hover:underline"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
               <div>

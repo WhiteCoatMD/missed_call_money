@@ -97,3 +97,27 @@ export async function PUT(request: NextRequest) {
 
   return NextResponse.json(data);
 }
+
+// DELETE /api/businesses — Delete a business
+export async function DELETE(request: NextRequest) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const body = await request.json();
+
+  const { error } = await supabase
+    .from('businesses')
+    .delete()
+    .eq('id', body.id)
+    .eq('user_id', user.id);
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ success: true });
+}
