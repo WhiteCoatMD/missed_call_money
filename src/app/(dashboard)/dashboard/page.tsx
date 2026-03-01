@@ -50,7 +50,6 @@ export default async function DashboardPage() {
     .limit(20);
 
   const missedCalls = stats?.missed_calls_30d || 0;
-  const moneyLost = missedCalls * business.average_job_value * business.close_rate;
 
   return (
     <div>
@@ -62,7 +61,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <KpiCard
           title="Missed Calls (30d)"
           value={missedCalls}
@@ -74,15 +73,9 @@ export default async function DashboardPage() {
           variant="blue"
         />
         <KpiCard
-          title="Revenue Recovered"
-          value={`$${(stats?.revenue_recovered || 0).toLocaleString()}`}
+          title="Leads Converted"
+          value={stats?.revenue_recovered || 0}
           variant="green"
-        />
-        <KpiCard
-          title="Estimated Money Lost"
-          value={`$${moneyLost.toLocaleString()}`}
-          subtitle={`${missedCalls} calls × $${business.average_job_value} × ${(business.close_rate * 100).toFixed(0)}%`}
-          variant="red"
         />
       </div>
 

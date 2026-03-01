@@ -15,12 +15,7 @@ export default function BusinessesClient({ businesses: initialBusinesses }: Prop
   const [form, setForm] = useState({
     business_name: '',
     phone_number: '',
-    average_job_value: '',
-    close_rate: '30',
     auto_reply_template: 'Sorry we missed your call. How can we help you today?',
-    white_label_enabled: false,
-    white_label_name: '',
-    badge_enabled: false,
   });
   const router = useRouter();
 
@@ -28,12 +23,7 @@ export default function BusinessesClient({ businesses: initialBusinesses }: Prop
     setForm({
       business_name: '',
       phone_number: '',
-      average_job_value: '',
-      close_rate: '30',
       auto_reply_template: 'Sorry we missed your call. How can we help you today?',
-      white_label_enabled: false,
-      white_label_name: '',
-      badge_enabled: false,
     });
     setShowForm(false);
     setEditingId(null);
@@ -43,12 +33,7 @@ export default function BusinessesClient({ businesses: initialBusinesses }: Prop
     setForm({
       business_name: b.business_name,
       phone_number: b.phone_number || '',
-      average_job_value: String(b.average_job_value),
-      close_rate: String(b.close_rate * 100),
       auto_reply_template: b.auto_reply_template,
-      white_label_enabled: b.white_label_enabled,
-      white_label_name: b.white_label_name || '',
-      badge_enabled: b.badge_enabled,
     });
     setEditingId(b.id);
     setShowForm(true);
@@ -59,12 +44,7 @@ export default function BusinessesClient({ businesses: initialBusinesses }: Prop
     const payload = {
       business_name: form.business_name,
       phone_number: form.phone_number,
-      average_job_value: parseFloat(form.average_job_value) || 0,
-      close_rate: (parseFloat(form.close_rate) || 30) / 100,
       auto_reply_template: form.auto_reply_template,
-      white_label_enabled: form.white_label_enabled,
-      white_label_name: form.white_label_name || null,
-      badge_enabled: form.badge_enabled,
     };
 
     if (editingId) {
@@ -123,24 +103,6 @@ export default function BusinessesClient({ businesses: initialBusinesses }: Prop
                 className="w-full border rounded px-3 py-2 text-sm"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Avg Job Value ($)</label>
-              <input
-                type="number"
-                value={form.average_job_value}
-                onChange={(e) => setForm({ ...form, average_job_value: e.target.value })}
-                className="w-full border rounded px-3 py-2 text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Close Rate (%)</label>
-              <input
-                type="number"
-                value={form.close_rate}
-                onChange={(e) => setForm({ ...form, close_rate: e.target.value })}
-                className="w-full border rounded px-3 py-2 text-sm"
-              />
-            </div>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Auto-Reply Template</label>
@@ -150,43 +112,6 @@ export default function BusinessesClient({ businesses: initialBusinesses }: Prop
               rows={2}
               className="w-full border rounded px-3 py-2 text-sm"
             />
-          </div>
-
-          {/* White-label & Badge toggles */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t">
-            <div>
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={form.white_label_enabled}
-                  onChange={(e) => setForm({ ...form, white_label_enabled: e.target.checked })}
-                  className="rounded"
-                />
-                <span className="font-medium text-gray-700">Agency White-Label</span>
-              </label>
-              {form.white_label_enabled && (
-                <input
-                  value={form.white_label_name}
-                  onChange={(e) => setForm({ ...form, white_label_name: e.target.value })}
-                  placeholder="Your Agency Name"
-                  className="mt-2 w-full border rounded px-3 py-2 text-sm"
-                />
-              )}
-            </div>
-            <div>
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={form.badge_enabled}
-                  onChange={(e) => setForm({ ...form, badge_enabled: e.target.checked })}
-                  className="rounded"
-                />
-                <span className="font-medium text-gray-700">Enable Public Revenue Badge</span>
-              </label>
-              <p className="text-xs text-gray-500 mt-1">
-                Embed a &quot;Revenue Recovered&quot; badge on your website.
-              </p>
-            </div>
           </div>
 
           <button
@@ -210,36 +135,17 @@ export default function BusinessesClient({ businesses: initialBusinesses }: Prop
                 Edit
               </button>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600">
+            <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
               <div>
                 <span className="font-medium">Phone:</span> {b.phone_number || '—'}
               </div>
               <div>
                 <span className="font-medium">Twilio #:</span> {b.twilio_number || 'Pending'}
               </div>
-              <div>
-                <span className="font-medium">Avg Job:</span> ${b.average_job_value}
-              </div>
-              <div>
-                <span className="font-medium">Close Rate:</span> {(b.close_rate * 100).toFixed(0)}%
-              </div>
             </div>
             <div className="mt-2 text-sm text-gray-500">
               <span className="font-medium">Auto-Reply:</span> {b.auto_reply_template}
             </div>
-            {b.white_label_enabled && (
-              <div className="mt-1 text-sm text-purple-600">
-                White-label: {b.white_label_name || 'Enabled'}
-              </div>
-            )}
-            {b.badge_enabled && (
-              <div className="mt-2 p-3 bg-gray-50 rounded text-xs">
-                <span className="font-medium text-gray-700">Embed code:</span>
-                <code className="block mt-1 text-gray-600 break-all">
-                  {`<iframe src="${typeof window !== 'undefined' ? window.location.origin : ''}/embed/${b.id}" width="260" height="100" frameborder="0"></iframe>`}
-                </code>
-              </div>
-            )}
           </div>
         ))}
 
