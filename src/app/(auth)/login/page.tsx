@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { createClient } from '@/lib/supabase-browser';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -34,8 +35,10 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
         <div>
-          <h1 className="text-3xl font-bold text-center text-gray-900">Missed Call Money</h1>
-          <h2 className="mt-2 text-center text-gray-600">Sign in to your account</h2>
+          <div className="flex justify-center">
+            <Image src="/logo.png" alt="Missed Call Money" width={200} height={50} priority />
+          </div>
+          <h2 className="mt-4 text-center text-gray-600">Sign in to your account</h2>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-6">

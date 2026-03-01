@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { createClient } from '@/lib/supabase-browser';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -20,11 +21,13 @@ export default function SignupPage() {
     setLoading(true);
     setError('');
 
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: { referral_code: refCode },
+        emailRedirectTo: `${appUrl}/login?verified=true`,
       },
     });
 
@@ -43,16 +46,17 @@ export default function SignupPage() {
       });
     }
 
-    router.push('/settings?subscribe=true');
-    router.refresh();
+    router.push('/verify');
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
         <div>
-          <h1 className="text-3xl font-bold text-center text-gray-900">Missed Call Money</h1>
-          <h2 className="mt-2 text-center text-gray-600">Create your account</h2>
+          <div className="flex justify-center">
+            <Image src="/logo.png" alt="Missed Call Money" width={200} height={50} priority />
+          </div>
+          <h2 className="mt-4 text-center text-gray-600">Create your account</h2>
           {refCode && (
             <p className="mt-1 text-center text-sm text-green-600">You were referred! Welcome.</p>
           )}

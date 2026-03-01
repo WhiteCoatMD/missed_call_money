@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function HomePage() {
   return (
@@ -6,7 +7,9 @@ export default function HomePage() {
       {/* Header */}
       <header className="border-b">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-gray-900">Missed Call Money</h1>
+          <Link href="/" className="flex items-center gap-2">
+            <Image src="/logo.png" alt="Missed Call Money" width={180} height={45} priority />
+          </Link>
           <div className="flex items-center gap-4">
             <Link href="/login" className="text-sm text-gray-600 hover:text-gray-900">Log In</Link>
             <Link href="/signup" className="text-sm px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 
 const navItems = [
@@ -15,8 +16,8 @@ export default function Sidebar() {
 
   return (
     <aside className="w-64 bg-gray-900 text-white min-h-screen p-6 flex flex-col">
-      <Link href="/dashboard" className="text-xl font-bold mb-8 block">
-        Missed Call Money
+      <Link href="/dashboard" className="mb-8 block">
+        <Image src="/logo.png" alt="Missed Call Money" width={160} height={40} />
       </Link>
 
       <nav className="space-y-1 flex-1">
