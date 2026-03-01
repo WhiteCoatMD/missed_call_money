@@ -21,11 +21,13 @@ export default function SubscribeSuccessPage() {
         return;
       }
 
-      const { data: subscription } = await supabase
+      const { data: subscriptions } = await supabase
         .from('subscriptions')
         .select('status')
         .eq('user_id', user.id)
-        .single();
+        .limit(1);
+
+      const subscription = subscriptions?.[0];
 
       if (subscription?.status === 'active') {
         setStatus('active');
