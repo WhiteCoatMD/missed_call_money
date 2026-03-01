@@ -1,6 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase-server';
-import { getStripe, PLAN_PRICE_ID } from '@/lib/stripe';
+
+const STRIPE_API = 'https://api.stripe.com/v1';
+
+async function stripePost(path: string, params: Record<string, string>) {
+  const res = await fetch(`${STRIPE_API}${path}`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.STRIPE_SECRET_KEY}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams(params).toString(),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error?.message || `Stripe error: ${res.status}`);
+  }
+  return data;
+}
 
 // POST /api/stripe/checkout — Create Stripe Checkout session
 export async function POST(request: NextRequest) {
@@ -9,16 +26,14 @@ export async function POST(request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-      console.error('Checkout: no authenticated user found');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (!PLAN_PRICE_ID) {
-      console.error('Checkout: STRIPE_PRICE_ID env var is missing');
+    const priceId = process.env.STRIPE_PRICE_ID;
+    if (!priceId) {
       return NextResponse.json({ error: 'Price not configured' }, { status: 500 });
     }
 
-    const stripe = getStripe();
     const origin = request.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'https://missed-call-money.vercel.app';
 
     // Check for existing Stripe customer
@@ -31,20 +46,21 @@ export async function POST(request: NextRequest) {
     let customerId = subscription?.stripe_customer_id;
 
     if (!customerId) {
-      const customer = await stripe.customers.create({
-        email: user.email,
-        metadata: { user_id: user.id },
+      const customer = await stripePost('/customers', {
+        email: user.email || '',
+        'metadata[user_id]': user.id,
       });
       customerId = customer.id;
     }
 
-    const session = await stripe.checkout.sessions.create({
-      customer: customerId,
-      line_items: [{ price: PLAN_PRICE_ID, quantity: 1 }],
+    const session = await stripePost('/checkout/sessions', {
+      customer: customerId!,
+      'line_items[0][price]': priceId,
+      'line_items[0][quantity]': '1',
       mode: 'subscription',
       success_url: `${origin}/dashboard?subscribed=true`,
       cancel_url: `${origin}/settings`,
-      metadata: { user_id: user.id },
+      'metadata[user_id]': user.id,
     });
 
     return NextResponse.json({ url: session.url });
