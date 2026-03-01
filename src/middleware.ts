@@ -39,6 +39,11 @@ export async function middleware(request: NextRequest) {
 
   // Subscription gate: check if user has active subscription for dashboard routes
   if (user && (path.startsWith('/dashboard') || path.startsWith('/leads') || path.startsWith('/businesses'))) {
+    // Allow subscribe-success page through without subscription check
+    if (path.startsWith('/subscribe-success')) {
+      return response;
+    }
+
     const { data: subscription } = await supabase
       .from('subscriptions')
       .select('status')
@@ -46,7 +51,6 @@ export async function middleware(request: NextRequest) {
       .single();
 
     if (!subscription || subscription.status !== 'active') {
-      // Allow access to settings (for subscribing) but block dashboard
       if (!path.startsWith('/settings')) {
         return NextResponse.redirect(new URL('/settings?subscribe=true', request.url));
       }
@@ -62,6 +66,7 @@ export const config = {
     '/leads/:path*',
     '/settings/:path*',
     '/businesses/:path*',
+    '/subscribe-success/:path*',
     '/admin/:path*',
     '/login',
     '/signup',
