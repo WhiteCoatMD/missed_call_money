@@ -10,7 +10,8 @@
       "Bash(curl:*)",
       "Bash(node:*)",
       "Bash(vercel:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(vercel env:*)"
     ]
   }
 }
