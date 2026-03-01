@@ -9,7 +9,8 @@
       "Bash(npm run:*)",
       "Bash(curl:*)",
       "Bash(node:*)",
-      "Bash(vercel:*)"
+      "Bash(vercel:*)",
+      "Bash(mkdir:*)"
     ]
   }
 }

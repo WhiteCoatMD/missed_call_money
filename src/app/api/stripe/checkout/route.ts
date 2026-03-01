@@ -9,7 +9,13 @@ export async function POST(request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
+      console.error('Checkout: no authenticated user found');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (!PLAN_PRICE_ID) {
+      console.error('Checkout: STRIPE_PRICE_ID env var is missing');
+      return NextResponse.json({ error: 'Price not configured' }, { status: 500 });
     }
 
     const origin = request.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'https://missed-call-money.vercel.app';
