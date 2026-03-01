@@ -24,10 +24,22 @@ export default function SettingsClient({ subscription, referralCode, referrals, 
 
   async function handleSubscribe() {
     setLoading(true);
-    const res = await fetch('/api/stripe/checkout', { method: 'POST' });
-    const data = await res.json();
-    if (data.url) {
-      window.location.href = data.url;
+    try {
+      const res = await fetch('/api/stripe/checkout', { method: 'POST' });
+      const text = await res.text();
+      if (!text) {
+        console.error('Empty response from checkout');
+        setLoading(false);
+        return;
+      }
+      const data = JSON.parse(text);
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        console.error('Checkout error:', data);
+      }
+    } catch (err) {
+      console.error('Checkout failed:', err);
     }
     setLoading(false);
   }
