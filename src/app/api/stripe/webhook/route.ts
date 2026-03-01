@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe } from '@/lib/stripe';
+import { getStripe } from '@/lib/stripe';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { purchasePhoneNumber } from '@/lib/twilio';
 import Stripe from 'stripe';
@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
 
   let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(
+    event = getStripe().webhooks.constructEvent(
       body,
       signature,
       process.env.STRIPE_WEBHOOK_SECRET!
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       const customerId = subscription.customer as string;
 
       // Get user_id from Stripe customer metadata
-      const customer = await stripe.customers.retrieve(customerId) as Stripe.Customer;
+      const customer = await getStripe().customers.retrieve(customerId) as Stripe.Customer;
       const userId = customer.metadata.user_id;
 
       if (!userId) break;

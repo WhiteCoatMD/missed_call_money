@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase-server';
-import { stripe, PLAN_PRICE_ID } from '@/lib/stripe';
+import { getStripe, PLAN_PRICE_ID } from '@/lib/stripe';
 
 // POST /api/stripe/checkout — Create Stripe Checkout session
 export async function POST(request: NextRequest) {
@@ -18,6 +18,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Price not configured' }, { status: 500 });
     }
 
+    const stripe = getStripe();
     const origin = request.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'https://missed-call-money.vercel.app';
 
     // Check for existing Stripe customer
