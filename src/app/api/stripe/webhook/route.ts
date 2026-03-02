@@ -116,14 +116,14 @@ export async function POST(request: NextRequest) {
         if (status === 'active') {
           const { data: businesses } = await supabaseAdmin
             .from('businesses')
-            .select('id, twilio_number')
+            .select('id, twilio_number, phone_number')
             .eq('user_id', userId)
             .is('twilio_number', null)
             .limit(1);
 
           if (businesses && businesses.length > 0) {
             try {
-              const phoneNumber = await purchasePhoneNumber();
+              const phoneNumber = await purchasePhoneNumber(businesses[0].phone_number);
               await supabaseAdmin
                 .from('businesses')
                 .update({ twilio_number: phoneNumber })

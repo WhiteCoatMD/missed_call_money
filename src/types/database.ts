@@ -19,6 +19,7 @@ export interface Business {
   white_label_name: string | null;
   white_label_logo_url: string | null;
   badge_enabled: boolean;
+  ai_prompt: string;
   created_at: string;
 }
 
@@ -64,6 +65,25 @@ export interface Referral {
   referred_id: string;
   status: 'pending' | 'converted' | 'paid';
   reward_amount: number;
+  created_at: string;
+}
+
+export interface AiMessage {
+  role: 'assistant' | 'user';
+  content: string;
+  timestamp: string;
+}
+
+export interface AiConversation {
+  id: string;
+  business_id: string;
+  caller_number: string;
+  call_sid: string | null;
+  messages: AiMessage[];
+  extracted_name: string | null;
+  extracted_reason: string | null;
+  turn_count: number;
+  status: 'active' | 'completed' | 'error';
   created_at: string;
 }
 

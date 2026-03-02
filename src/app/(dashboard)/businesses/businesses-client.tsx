@@ -16,6 +16,7 @@ export default function BusinessesClient({ businesses: initialBusinesses }: Prop
     business_name: '',
     phone_number: '',
     auto_reply_template: 'Sorry we missed your call. How can we help you today?',
+    ai_prompt: '',
   });
   const router = useRouter();
 
@@ -24,6 +25,7 @@ export default function BusinessesClient({ businesses: initialBusinesses }: Prop
       business_name: '',
       phone_number: '',
       auto_reply_template: 'Sorry we missed your call. How can we help you today?',
+      ai_prompt: '',
     });
     setShowForm(false);
     setEditingId(null);
@@ -34,6 +36,7 @@ export default function BusinessesClient({ businesses: initialBusinesses }: Prop
       business_name: b.business_name,
       phone_number: b.phone_number || '',
       auto_reply_template: b.auto_reply_template,
+      ai_prompt: b.ai_prompt || '',
     });
     setEditingId(b.id);
     setShowForm(true);
@@ -45,6 +48,7 @@ export default function BusinessesClient({ businesses: initialBusinesses }: Prop
       business_name: form.business_name,
       phone_number: form.phone_number,
       auto_reply_template: form.auto_reply_template,
+      ai_prompt: form.ai_prompt,
     };
 
     if (editingId) {
@@ -126,6 +130,22 @@ export default function BusinessesClient({ businesses: initialBusinesses }: Prop
               className="w-full rounded-xl bg-gray-50/50 border border-gray-200 px-4 py-2.5 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors"
             />
           </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              AI Receptionist Prompt
+              <span className="text-gray-400 font-normal ml-1">(optional — leave empty to disable)</span>
+            </label>
+            <textarea
+              value={form.ai_prompt}
+              onChange={(e) => setForm({ ...form, ai_prompt: e.target.value })}
+              rows={3}
+              placeholder="e.g. We are a plumbing company open Mon-Fri 8am-5pm. Ask callers if it's an emergency and collect their address."
+              className="w-full rounded-xl bg-gray-50/50 border border-gray-200 px-4 py-2.5 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors"
+            />
+            <p className="text-xs text-gray-400 mt-1">
+              When set, missed calls get an AI voice receptionist that collects the caller&apos;s name and reason for calling.
+            </p>
+          </div>
 
           <button
             type="submit"
@@ -140,7 +160,14 @@ export default function BusinessesClient({ businesses: initialBusinesses }: Prop
         {businesses.map((b) => (
           <div key={b.id} className="bg-white rounded-2xl border border-gray-200/60 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-lg font-semibold text-gray-900">{b.business_name}</h3>
+              <div className="flex items-center gap-2">
+                <h3 className="text-lg font-semibold text-gray-900">{b.business_name}</h3>
+                {b.ai_prompt && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-violet-100 text-violet-700">
+                    AI Receptionist
+                  </span>
+                )}
+              </div>
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => startEdit(b)}

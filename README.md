@@ -1,159 +1,205 @@
-# Missed Call Money
+# Missed Call Money (247 Front Runner)
 
-Revenue recovery SaaS — automatically text callers when you miss their call, capture leads, and track recovered revenue.
+Turn missed business calls into leads and revenue. When a business misses a phone call, the system auto-texts the caller and (optionally) deploys an AI voice receptionist to collect their name and reason for calling.
+
+**Live URL:** https://247frontrunner.com
 
 ## Tech Stack
 
-- **Next.js 14** (App Router, TypeScript)
-- **Supabase** (Auth + Postgres)
-- **Stripe** (Subscriptions, $79/mo)
-- **Twilio** (Voice + SMS)
-- **Tailwind CSS**
-- **Vercel** (deploy target)
+- **Framework:** Next.js 14 (App Router), TypeScript
+- **Database:** Supabase (Postgres + Auth + RLS)
+- **Payments:** Stripe ($79/mo subscription)
+- **Telephony:** Twilio (voice webhooks, SMS, number provisioning)
+- **AI Voice:** OpenAI GPT-4o-mini (conversation) + ElevenLabs (TTS)
+- **Styling:** Tailwind CSS (violet/indigo gradient theme, glass effects)
+- **Deploy:** Vercel
+
+## Features
+
+1. **Auth** — Email/password signup & login via Supabase Auth
+2. **Subscription gating** — Middleware checks Stripe subscription status; redirects to checkout if inactive
+3. **Multi-business support** — Each user can create multiple businesses, each gets its own Twilio number
+4. **Missed call detection** — Twilio voice webhook rings the business owner for 20s, then triggers missed-call flow
+5. **Auto-SMS** — Sends a customizable text to the caller on missed call
+6. **SMS reply capture** — Inbound SMS replies create/update leads
+7. **AI Voice Receptionist** (opt-in per business) — When `ai_prompt` is set, missed calls get an AI-powered phone conversation that collects name + reason, saves transcript to the lead, then sends SMS
+8. **Dashboard** — KPI cards (missed calls, leads, revenue recovered) + money lost calculator
+9. **Lead management** — View leads, message threads (including AI transcripts), mark as converted with revenue value
+10. **Referral system** — Unique referral codes per user
+11. **Admin panel** — Super admin can view all businesses, users, and stats
+12. **Public revenue badge** — Embeddable iframe showing recovered revenue
+13. **Agency white-label** — Toggle per business to replace branding
 
 ## Project Structure
 
 ```
 src/
 ├── app/
-│   ├── (auth)/
-│   │   ├── login/page.tsx         # Email/password login
-│   │   └── signup/page.tsx        # Signup with referral support
-│   ├── (dashboard)/
-│   │   ├── layout.tsx             # Sidebar + main layout
-│   │   ├── dashboard/page.tsx     # KPI cards, missed calls table, money lost calc
-│   │   ├── leads/page.tsx         # Lead list, mark as converted
-│   │   ├── businesses/page.tsx    # Multi-business CRUD, white-label, badge
-│   │   └── settings/page.tsx      # Subscription, referrals, account
-│   ├── admin/
-│   │   └── businesses/page.tsx    # Admin view of all businesses
-│   ├── embed/
-│   │   └── [businessId]/page.tsx  # Public revenue badge (iframe embed)
+│   ├── (auth)/              # Login, signup, email verification
+│   │   ├── login/page.tsx
+│   │   ├── signup/page.tsx
+│   │   └── verify/page.tsx
+│   ├── (dashboard)/         # Authenticated pages (sidebar layout)
+│   │   ├── layout.tsx       # Sidebar + subscription check
+│   │   ├── dashboard/       # KPI dashboard
+│   │   ├── businesses/      # Business CRUD + AI prompt config
+│   │   ├── leads/           # Lead list + message threads
+│   │   ├── settings/        # User settings, referral code
+│   │   └── subscribe-success/
+│   ├── admin/               # Super admin panel
+│   │   ├── businesses/page.tsx
+│   │   └── users/page.tsx
 │   ├── api/
-│   │   ├── twilio/voice/route.ts  # Twilio voice webhook (missed call detection)
-│   │   ├── twilio/sms/route.ts    # Twilio SMS webhook (reply capture)
-│   │   ├── stripe/checkout/route.ts
-│   │   ├── stripe/webhook/route.ts
-│   │   ├── businesses/route.ts    # Business CRUD
-│   │   ├── businesses/[businessId]/badge/route.ts  # Badge JSON API
-│   │   ├── leads/route.ts         # Lead management
-│   │   ├── calls/route.ts         # Call history
-│   │   └── referrals/route.ts     # Referral tracking
-│   ├── layout.tsx
-│   └── page.tsx                   # Landing page
+│   │   ├── businesses/      # CRUD + Twilio number provisioning
+│   │   ├── calls/           # Call log queries
+│   │   ├── leads/           # Lead CRUD
+│   │   ├── referrals/       # Referral queries
+│   │   ├── admin/           # Admin-only endpoints (users, stats, subscriptions)
+│   │   ├── stripe/
+│   │   │   ├── checkout/    # Create Stripe checkout session
+│   │   │   └── webhook/     # Stripe subscription events
+│   │   └── twilio/
+│   │       ├── voice/       # Inbound call handler + missed call detection
+│   │       ├── sms/         # Inbound SMS → lead creation
+│   │       ├── ai-voice/    # AI conversation turn handler
+│   │       └── tts/         # ElevenLabs TTS audio endpoint
+│   ├── embed/[businessId]/  # Public revenue badge
+│   ├── layout.tsx           # Root layout
+│   └── page.tsx             # Landing page
 ├── components/
 │   ├── sidebar.tsx
 │   └── kpi-card.tsx
 ├── lib/
-│   ├── supabase-server.ts         # Server-side Supabase client
-│   ├── supabase-browser.ts        # Client-side Supabase client
-│   ├── supabase-admin.ts          # Service role client (API routes)
-│   ├── stripe.ts
-│   └── twilio.ts                  # SMS sending + number provisioning
+│   ├── supabase-server.ts   # Server-side Supabase client (cookie-based auth)
+│   ├── supabase-browser.ts  # Browser-side Supabase client
+│   ├── supabase-admin.ts    # Service role client (bypasses RLS)
+│   ├── stripe.ts            # Lazy-initialized Stripe client
+│   ├── twilio.ts            # SMS sending + number purchase/release
+│   ├── elevenlabs.ts        # ElevenLabs TTS API client
+│   ├── ai-receptionist.ts   # OpenAI conversation logic + info extraction
+│   └── admin.ts             # Super admin email check
 ├── types/
-│   └── database.ts                # TypeScript interfaces
-├── middleware.ts                   # Auth protection + subscription gating
+│   └── database.ts          # TypeScript interfaces for all DB tables
+└── middleware.ts             # Auth protection + subscription gating
 supabase/
 └── migrations/
-    └── 001_initial_schema.sql     # Full DB schema with RLS
+    ├── 001_initial_schema.sql      # Users, businesses, calls, leads, subscriptions, referrals
+    └── 002_ai_receptionist.sql     # ai_prompt column + ai_conversations table
+public/
+├── privacy.html
+└── terms.html
 ```
 
-## Setup Instructions
+## Environment Variables
 
-### 1. Clone and install
+Create `.env.local` with:
+
+```env
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# Stripe
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_PRICE_ID=price_...
+
+# Twilio
+TWILIO_ACCOUNT_SID=AC...
+TWILIO_AUTH_TOKEN=...
+TWILIO_MESSAGING_SERVICE_SID=MG...    # For 10DLC compliance
+
+# App
+NEXT_PUBLIC_APP_URL=https://247frontrunner.com
+SUPER_ADMIN_EMAILS=admin@example.com
+
+# AI Voice Receptionist (optional — only needed if using AI feature)
+OPENAI_API_KEY=sk-...
+ELEVENLABS_API_KEY=...
+ELEVENLABS_VOICE_ID=EXAVITQu4vr4xnSDxMaL   # Optional, defaults to "Sarah"
+```
+
+## Database Setup
+
+Run both migrations in the Supabase SQL Editor in order:
+
+1. `supabase/migrations/001_initial_schema.sql` — Core tables, RLS policies, indexes, triggers
+2. `supabase/migrations/002_ai_receptionist.sql` — AI receptionist feature (ai_prompt column + ai_conversations table)
+
+## Local Development
 
 ```bash
-git clone <repo-url>
-cd missed-call-money
 npm install
+npm run dev       # http://localhost:3000
 ```
 
-### 2. Environment variables
+## How It Works
 
-Copy `.env.example` to `.env.local` and fill in all values:
-
-```bash
-cp .env.example .env.local
+### Call Flow (without AI)
+```
+Customer calls business → Twilio forwards to owner's phone (20s ring)
+  → Owner answers → normal call
+  → Owner doesn't answer → Twilio POSTs to /api/twilio/voice?action=status
+    → Log missed call → Send auto-SMS → Create lead
+    → Play "we missed your call" → Hangup
 ```
 
-Required variables:
-- `NEXT_PUBLIC_SUPABASE_URL` — Supabase project URL
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` — Supabase anon/public key
-- `SUPABASE_SERVICE_ROLE_KEY` — Supabase service role key (server only)
-- `STRIPE_SECRET_KEY` — Stripe secret key
-- `STRIPE_WEBHOOK_SECRET` — Stripe webhook signing secret
-- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` — Stripe publishable key
-- `STRIPE_PRICE_ID` — Stripe Price ID for the $79/mo plan
-- `TWILIO_ACCOUNT_SID` — Twilio Account SID
-- `TWILIO_AUTH_TOKEN` — Twilio Auth Token
-- `NEXT_PUBLIC_APP_URL` — Your app URL (e.g., https://app.missedcallmoney.com)
-
-### 3. Database setup
-
-Run the SQL migration in your Supabase SQL Editor:
-
+### Call Flow (with AI Receptionist)
 ```
-supabase/migrations/001_initial_schema.sql
+Customer calls business → Twilio forwards to owner's phone (20s ring)
+  → Owner doesn't answer → Check if business has ai_prompt set
+    → YES: Create ai_conversations row → OpenAI generates greeting
+      → TwiML: <Gather><Play tts audio/></Gather>
+      → Caller speaks → Twilio STT → POST /api/twilio/ai-voice
+      → Load conversation → OpenAI generates response → Save to DB
+      → Repeat for up to 4 turns or until [END] signal
+      → Extract name + reason → Save transcript to lead → Send SMS → Hangup
+    → NO: Static "we missed your call" message + SMS (original flow)
 ```
 
-This creates all tables (users, businesses, calls, leads, subscriptions, referrals), RLS policies, indexes, triggers, and helper functions.
+### SMS Flow
+```
+Caller texts back → POST /api/twilio/sms → Create/update lead with message
+```
 
-### 4. Stripe setup
+## Stripe Setup
 
 1. Create a product in Stripe with a $79/month recurring price
 2. Copy the Price ID to `STRIPE_PRICE_ID`
-3. Set up a webhook endpoint pointing to `/api/stripe/webhook`
-4. Listen for: `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`
+3. Set up webhook endpoint: `{APP_URL}/api/stripe/webhook`
+4. Events to listen for: `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`
 
-### 5. Twilio setup
+## Twilio Setup
 
-1. Get your Account SID and Auth Token from the Twilio console
-2. Phone numbers are auto-provisioned when a user subscribes
+1. Get Account SID and Auth Token from the Twilio console
+2. Phone numbers are auto-provisioned when a business is created (if user has active subscription)
 3. Webhook URLs are automatically configured on purchased numbers:
    - Voice: `{APP_URL}/api/twilio/voice`
    - SMS: `{APP_URL}/api/twilio/sms`
 
-### 6. Run locally
+## Key Architecture Decisions
 
-```bash
-npm run dev
-```
+- **Lazy-initialized clients** — Stripe, Twilio, and Supabase admin clients are lazy-initialized to avoid build-time env var errors on Vercel
+- **No Twilio SDK for SMS** — Uses direct REST API calls (`src/lib/twilio.ts`) to reduce bundle size
+- **Twilio SDK for TwiML only** — The `twilio` npm package is only used for `VoiceResponse` TwiML generation
+- **Serverless-compatible AI voice** — Turn-based conversation via `<Gather input="speech">` works fully on Vercel serverless (no WebSockets needed)
+- **RLS on all tables** — Row-level security policies ensure users only see their own data; API routes use `supabaseAdmin` (service role) for webhook operations
+- **Middleware subscription gating** — `src/middleware.ts` checks subscription status and redirects to checkout for protected routes
 
-### 7. Deploy to Vercel
+## Deploy to Vercel
 
-```bash
-vercel --prod
-```
+1. Push to GitHub
+2. Connect repo to Vercel
+3. Add all env vars in Vercel dashboard
+4. Set up Stripe webhook endpoint
+5. Twilio voice/SMS webhook URLs are set automatically when numbers are provisioned
 
-Set all environment variables in the Vercel dashboard.
+## What's Next
 
-## Features
-
-### Core
-- **Missed call detection** — Rings business phone for 20s, marks as missed if unanswered
-- **Auto-text on missed call** — Customizable SMS template sent to caller
-- **Lead capture** — Caller replies tracked in message thread
-- **Revenue tracking** — Mark leads as converted, enter revenue value
-- **Money Lost Calculator** — missed_calls × avg_job_value × close_rate
-
-### Multi-Business
-- Users can manage multiple businesses under one account
-- Each business gets its own Twilio number, settings, and stats
-
-### Referral System
-- Each user gets a unique referral code
-- Signup link: `/signup?ref=CODE`
-- Track referral status (pending → converted → paid)
-
-### Agency White-Label
-- Toggle per business to replace "Missed Call Money" branding
-- Set custom agency name displayed on badge embeds
-
-### Public Revenue Badge
-- Enable per business in settings
-- Embeddable iframe: `<iframe src="/embed/BUSINESS_ID" />`
-- JSON API: `/api/businesses/BUSINESS_ID/badge`
-- Shows "Revenue Recovered This Month" with optional white-label branding
-
-### Admin
-- `/admin/businesses` — View all businesses, subscription status, missed calls, revenue recovered
+- Test the full AI voice receptionist end-to-end with a real call
+- Verify ElevenLabs TTS latency is acceptable (~500ms target)
+- Add conversation transcript view in the leads UI
+- Add OPENAI_API_KEY and ELEVENLABS_API_KEY to Vercel env vars
+- Run `002_ai_receptionist.sql` migration in Supabase SQL editor

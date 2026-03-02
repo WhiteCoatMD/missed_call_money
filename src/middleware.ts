@@ -37,8 +37,21 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
+  // Check if user is a super admin
+  const adminEmails = (process.env.SUPER_ADMIN_EMAILS || '')
+    .split(',')
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  const isAdmin = user ? adminEmails.includes((user.email || '').toLowerCase()) : false;
+
+  // Admin route protection: only super admins can access /admin/*
+  if (user && path.startsWith('/admin') && !isAdmin) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
+
   // Subscription gate: check if user has active subscription for dashboard routes
-  if (user && (path.startsWith('/dashboard') || path.startsWith('/leads') || path.startsWith('/businesses'))) {
+  // Super admins bypass this check
+  if (user && !isAdmin && (path.startsWith('/dashboard') || path.startsWith('/leads') || path.startsWith('/businesses'))) {
     // Allow subscribe-success page through without subscription check
     if (path.startsWith('/subscribe-success')) {
       return response;
