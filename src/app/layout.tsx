@@ -14,7 +14,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Missed Call Money — Recover Revenue From Missed Calls",
+  title: "247 Front Runner — Recover Revenue From Missed Calls",
   description: "Automatically text callers when you miss their call. Capture leads, track revenue, and never lose a customer again.",
 };
 

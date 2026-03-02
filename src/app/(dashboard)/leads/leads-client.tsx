@@ -31,42 +31,42 @@ export default function LeadsClient({ leads: initialLeads }: Props) {
   }
 
   return (
-    <div className="bg-white rounded-lg border">
+    <div className="bg-white rounded-2xl border border-gray-200/60 shadow-sm animate-fade-in">
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="text-left text-sm text-gray-500 border-b">
-              <th className="px-4 py-3">Phone</th>
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Messages</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Revenue</th>
-              <th className="px-4 py-3">Actions</th>
+            <tr className="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider border-b border-gray-100">
+              <th className="px-5 py-3">Phone</th>
+              <th className="px-5 py-3">Name</th>
+              <th className="px-5 py-3">Messages</th>
+              <th className="px-5 py-3">Status</th>
+              <th className="px-5 py-3">Revenue</th>
+              <th className="px-5 py-3">Actions</th>
             </tr>
           </thead>
           <tbody>
             {leads.map((lead) => (
-              <tr key={lead.id} className="border-b last:border-0">
-                <td className="px-4 py-3 text-sm">{lead.caller_number}</td>
-                <td className="px-4 py-3 text-sm">{lead.name || '—'}</td>
-                <td className="px-4 py-3 text-sm">
+              <tr key={lead.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors">
+                <td className="px-5 py-3.5 text-sm font-medium text-gray-900">{lead.caller_number}</td>
+                <td className="px-5 py-3.5 text-sm text-gray-600">{lead.name || '—'}</td>
+                <td className="px-5 py-3.5 text-sm text-gray-600">
                   {(lead.message_thread || []).length} messages
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-5 py-3.5">
                   {lead.converted ? (
-                    <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">
+                    <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 border border-emerald-200/60">
                       Converted
                     </span>
                   ) : (
-                    <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700">
+                    <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-amber-50 text-amber-700 border border-amber-200/60">
                       Open
                     </span>
                   )}
                 </td>
-                <td className="px-4 py-3 text-sm">
+                <td className="px-5 py-3.5 text-sm text-gray-600">
                   {lead.converted ? `$${lead.revenue_value.toLocaleString()}` : '—'}
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-5 py-3.5">
                   {!lead.converted && (
                     <>
                       {convertingId === lead.id ? (
@@ -76,17 +76,17 @@ export default function LeadsClient({ leads: initialLeads }: Props) {
                             placeholder="Revenue $"
                             value={revenueInput}
                             onChange={(e) => setRevenueInput(e.target.value)}
-                            className="w-24 border rounded px-2 py-1 text-sm"
+                            className="w-24 rounded-lg bg-gray-50/50 border border-gray-200 px-2.5 py-1.5 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors"
                           />
                           <button
                             onClick={() => markConverted(lead.id)}
-                            className="text-xs bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700"
+                            className="text-xs bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-3 py-1.5 rounded-lg font-medium hover:shadow-md transition-all duration-200"
                           >
                             Save
                           </button>
                           <button
                             onClick={() => setConvertingId(null)}
-                            className="text-xs text-gray-500 hover:text-gray-700"
+                            className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
                           >
                             Cancel
                           </button>
@@ -94,7 +94,7 @@ export default function LeadsClient({ leads: initialLeads }: Props) {
                       ) : (
                         <button
                           onClick={() => setConvertingId(lead.id)}
-                          className="text-xs text-blue-600 hover:underline"
+                          className="text-xs text-indigo-600 hover:text-indigo-700 font-medium transition-colors"
                         >
                           Mark Converted
                         </button>
@@ -106,7 +106,7 @@ export default function LeadsClient({ leads: initialLeads }: Props) {
             ))}
             {leads.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-gray-400">
+                <td colSpan={6} className="px-5 py-10 text-center text-gray-400">
                   No leads yet. Leads are created when callers respond to your auto-text.
                 </td>
               </tr>

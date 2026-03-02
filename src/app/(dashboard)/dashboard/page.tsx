@@ -18,13 +18,13 @@ export default async function DashboardPage() {
 
   if (!businesses || businesses.length === 0) {
     return (
-      <div>
+      <div className="animate-fade-in">
         <h1 className="text-2xl font-bold text-gray-900 mb-4">Dashboard</h1>
-        <div className="bg-white rounded-lg border p-8 text-center">
-          <p className="text-gray-600 mb-4">You haven&apos;t created a business yet.</p>
+        <div className="bg-white rounded-2xl border border-gray-200/60 p-8 text-center shadow-sm">
+          <p className="text-gray-500 mb-4">You haven&apos;t created a business yet.</p>
           <a
             href="/businesses"
-            className="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="inline-block px-5 py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-xl font-medium hover:shadow-lg hover:shadow-indigo-500/25 hover:-translate-y-0.5 transition-all duration-200"
           >
             Add Your First Business
           </a>
@@ -52,7 +52,7 @@ export default async function DashboardPage() {
   const missedCalls = stats?.missed_calls_30d || 0;
 
   return (
-    <div>
+    <div className="animate-fade-in">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
         {businesses.length > 1 && (
@@ -80,7 +80,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Revenue This Month */}
-      <div className="bg-green-600 text-white rounded-lg p-6 mb-8">
+      <div className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-2xl p-6 mb-8 shadow-sm">
         <p className="text-sm font-medium opacity-80">Revenue Recovered This Month</p>
         <p className="text-4xl font-bold mt-1">
           ${(stats?.revenue_recovered_this_month || 0).toLocaleString()}
@@ -88,36 +88,36 @@ export default async function DashboardPage() {
       </div>
 
       {/* Recent Missed Calls Table */}
-      <div className="bg-white rounded-lg border">
-        <div className="p-4 border-b">
+      <div className="bg-white rounded-2xl border border-gray-200/60 shadow-sm">
+        <div className="p-5 border-b border-gray-100">
           <h2 className="text-lg font-semibold text-gray-900">Recent Missed Calls</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="text-left text-sm text-gray-500 border-b">
-                <th className="px-4 py-3">Caller</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Date</th>
+              <tr className="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                <th className="px-5 py-3">Caller</th>
+                <th className="px-5 py-3">Status</th>
+                <th className="px-5 py-3">Date</th>
               </tr>
             </thead>
             <tbody>
               {(recentCalls || []).map((call) => (
-                <tr key={call.id} className="border-b last:border-0">
-                  <td className="px-4 py-3 text-sm">{call.caller_number}</td>
-                  <td className="px-4 py-3">
-                    <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-700">
+                <tr key={call.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors">
+                  <td className="px-5 py-3.5 text-sm font-medium text-gray-900">{call.caller_number}</td>
+                  <td className="px-5 py-3.5">
+                    <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-rose-100 text-rose-700">
                       Missed
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-500">
+                  <td className="px-5 py-3.5 text-sm text-gray-500">
                     {new Date(call.created_at).toLocaleString()}
                   </td>
                 </tr>
               ))}
               {(!recentCalls || recentCalls.length === 0) && (
                 <tr>
-                  <td colSpan={3} className="px-4 py-8 text-center text-gray-400">
+                  <td colSpan={3} className="px-5 py-10 text-center text-gray-400">
                     No missed calls yet. Your Twilio number will start tracking calls.
                   </td>
                 </tr>

@@ -57,35 +57,35 @@ export default function SettingsClient({ subscription, referralCode, referrals, 
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       {/* Account */}
-      <div className="bg-white rounded-lg border p-6">
+      <div className="bg-white rounded-2xl border border-gray-200/60 p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Account</h2>
         <p className="text-sm text-gray-600 mb-4">Signed in as <strong>{userEmail}</strong></p>
         <button
           onClick={handleSignOut}
-          className="text-sm text-red-600 hover:underline"
+          className="text-sm text-rose-500 hover:text-rose-600 font-medium transition-colors"
         >
           Sign Out
         </button>
       </div>
 
       {/* Subscription */}
-      <div className="bg-white rounded-lg border p-6">
+      <div className="bg-white rounded-2xl border border-gray-200/60 p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Subscription</h2>
         {isActive ? (
           <div>
-            <span className="px-3 py-1 text-sm rounded-full bg-green-100 text-green-700">Active</span>
-            <p className="text-sm text-gray-500 mt-2">$19/month — Missed Call Money Pro</p>
+            <span className="px-3 py-1 text-sm font-medium rounded-full bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 border border-emerald-200/60">Active</span>
+            <p className="text-sm text-gray-500 mt-2">$19/month — 247 Front Runner Pro</p>
           </div>
         ) : (
           <div>
             <p className="text-sm text-gray-600 mb-4">
               Subscribe to activate your Twilio number and start recovering missed calls.
             </p>
-            <div className="bg-gray-50 rounded-lg p-4 mb-4">
+            <div className="bg-gray-50/50 rounded-xl p-5 mb-4 border border-gray-200/60">
               <p className="text-2xl font-bold text-gray-900">$19<span className="text-sm font-normal text-gray-500">/month</span></p>
-              <ul className="mt-2 text-sm text-gray-600 space-y-1">
+              <ul className="mt-3 text-sm text-gray-600 space-y-1.5">
                 <li>- Dedicated Twilio phone number</li>
                 <li>- Auto-text on missed calls</li>
                 <li>- Lead capture & tracking</li>
@@ -95,7 +95,7 @@ export default function SettingsClient({ subscription, referralCode, referrals, 
             <button
               onClick={handleSubscribe}
               disabled={loading}
-              className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+              className="px-6 py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-xl font-medium hover:shadow-lg hover:shadow-indigo-500/25 hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50"
             >
               {loading ? 'Redirecting...' : 'Subscribe Now'}
             </button>
@@ -104,18 +104,18 @@ export default function SettingsClient({ subscription, referralCode, referrals, 
       </div>
 
       {/* Referral Program */}
-      <div className="bg-white rounded-lg border p-6">
+      <div className="bg-white rounded-2xl border border-gray-200/60 p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Referral Program</h2>
         <p className="text-sm text-gray-600 mb-3">Share your link and earn when referrals subscribe.</p>
         <div className="flex items-center gap-2 mb-4">
           <input
             readOnly
             value={referralLink}
-            className="flex-1 border rounded px-3 py-2 text-sm bg-gray-50"
+            className="flex-1 rounded-xl bg-gray-50/50 border border-gray-200 px-4 py-2.5 text-sm"
           />
           <button
             onClick={copyReferralLink}
-            className="px-4 py-2 bg-gray-900 text-white rounded text-sm hover:bg-gray-800"
+            className="px-5 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors"
           >
             {copied ? 'Copied!' : 'Copy'}
           </button>
